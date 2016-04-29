@@ -74,7 +74,7 @@ toSeconds <- function(x){
     )    
 } 
 
-
+# get rid of this function altogether
 # same as toSeconds function except subtracts 5 hours *********************************************************************
 LtoSeconds <- function(x){
   if (!is.character(x) && !is.na(x)) stop("x must be a character 
@@ -148,6 +148,10 @@ checker <- function(year, vars, varnms, del){
   rbind(nms[varnms], head(df,4)[vars])
 }
 
+################ Changes -- change all times to seconds 
+################          -> if mil time then subtract 5 hours 
+################          -> D Thumb and on if time < 6 hours add 24 hours
+
 # General function that reads in data set and makes it workable
 # character-year:        as "yyyy.***" (*** is file type)
 # numeric vector-vars:   column numbers desired
@@ -165,12 +169,12 @@ inRead <- function(year, vars, varnms, begin, del, plus5, genNA, Onenm, intm){
                    na.strings = c("", "NA", "DNF", "DNS", "--:--",
                                   "--:-----:--"), skip = begin-1, 
                    fill = T, strip.white = T, stringsAsFactors = F)
-  vars2 <- paste(rep('V',length(vars)), as.character(vars), sep = "")
+  vars2 <- paste(rep('V',length(vars)), as.character(vars), sep = "") ############ this is probably not necessary
   df <- df[,vars2]
   names(df) <- nms[varnms]
   
   
-  # change all H:M:s to seconds ******************************************************************************************
+  # change all H:M:s to seconds #******************************************************************************************
   numvars = sum(varnms %in% 7:27)
   start = sum(varnms %in% 1:6)+1
   if (28 %in% varnms)
@@ -192,7 +196,7 @@ inRead <- function(year, vars, varnms, begin, del, plus5, genNA, Onenm, intm){
   }else
     df[,rangvars] <- lapply(df[,rangvars], toSeconds)
   
-  df$Time <- toSeconds(df$Time) *****************************************************************************************
+  df$Time <- toSeconds(df$Time) #*****************************************************************************************
   
   # Gender NA to M and everything else to F
   if(genNA)
@@ -229,7 +233,7 @@ inRead <- function(year, vars, varnms, begin, del, plus5, genNA, Onenm, intm){
 # reads in 2003 data
 inRead2003 <- function(){
   df <- read.table(text = gsub('\\s{2,}', ';', readLines("wser2003.txt")), 
-  header = F, sep = ';', quote = "\"", na.strings = c("", "NA", "DNF", "DNS", "--:--","--:-----:--"), 
+                   header = F, sep = ';', quote = "\"", na.strings = c("", "NA", "DNF", "DNS", "--:--","--:-----:--"), 
   fill = T, strip.white = T, blank.lines.skip = T, stringsAsFactors = F)
   
   # until row 286
@@ -251,7 +255,7 @@ inRead2003 <- function(){
     unlist(lapply(x, function(i){strsplit(i, ' ', fixed=T)[[1]][3]}))})
   
   
-  df[,5:10] <- lapply(df[,5:10], LtoSeconds) ***********************************************************************
+  df[,5:10] <- lapply(df[,5:10], LtoSeconds) #******************************************************Same changes needed as above
   df[,9:10] <- lapply(df[,9:10], weirdTimechange)
   df$Time <- toSeconds(df$Time)
   
